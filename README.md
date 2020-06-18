@@ -1,44 +1,105 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# react-router-view
 
-## Available Scripts
+全局路由组件，配置化路由，所有 Switch/Route 的地方都可以替换
 
-In the project directory, you can run:
+## 使用
 
-### `yarn start`
+### webpack loader 包含本组件
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```
+exclude: /node_modules(?!\/react-router-view)/
+```
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+### 引入
 
-### `yarn test`
+```tsx
+import { BrowserRouter } from 'react-router-dom'
+import RouterView, { RouteConfig } from 'react-router-view'
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+// 路由配置
+const routes: RouteConfig[] = [
+  { path: '/single', component: Single },
+  {
+    path: `/multi`,
+    component: Multi,
+    childRoutes: [
+      {
+        path: '/multi/child1',
+        component: Child1
+      },
+      {
+        path: '/multi/child2',
+        component: Child2
+      }
+    ]
+  }
+]
 
-### `yarn build`
+function App(props) {
+  return (
+    <div>
+      <BrowserRouter>
+        // 一级路由需要在 router 组件中，透传 props，并且传入 routes
+        <RouterView {...props} routes={routes} />
+      </BrowserRouter>
+    </div>
+  )
+}
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+function Multi(props) {
+  return (
+    <div>
+      // 二级路由开始，只需要透传 props
+      <RouterView {...props} />
+    </div>
+  )
+}
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+ReactDOM.render(<App />, document.getElementById('app'))
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## RouteConfig 配置
 
-### `yarn eject`
+继承 `RouteProps`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```tsx
+import { RouteProps } from 'react-router'
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+export interface RouteConfig extends RouteProps {
+  path: string
+  component: React.ComponentType<any>
+  childRoutes?: RouteConfig[]
+}
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### RouteProps.path
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+路由访问 url
 
-## Learn More
+### RouteProps.component
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+react 组件
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### RouteProps.childRoutes
+
+子路由
+
+## 问题
+
+`Swtich Route Link` 等路由组件必须要在 `Router` 组件中使用，只能以源码的方式引入，在项目中 babel 配置包含 `node_modules/react-router-view`，随着项目一起打包。
+
+```js
+// 打包后的部分代码
+// 直接使用 Swtich 会报错
+// You should not use <Switch> outside a <Router>
+function ReactRouterView(props) {
+  var routes = props.routes
+  return React.createElement(reactRouterDom.Switch)
+}
+```
+
+## 参考
+
+- [react route config](https://reacttraining.com/react-router/web/example/route-config)
+
+- [vue-router](https://router.vuejs.org/zh/)
