@@ -1,12 +1,11 @@
 {
   "name": "@jackgreen/react-router-view",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": false,
   "main": "dist/index.min.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": [
-    "src",
     "dist"
   ],
   "peerDependencies": {

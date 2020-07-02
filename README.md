@@ -4,23 +4,20 @@
 
 ## 使用
 
-### webpack loader 包含本组件
+[examples](https://codesandbox.io/s/react-router-view-example-rmf0o?fontsize=14&hidenavigation=1&theme=dark)
 
+```sh
+npm i @jackgreen/react-router-view
 ```
-exclude: /node_modules(?!\/react-router-view)/
-```
 
-### 引入
-
-```tsx
-import { BrowserRouter } from 'react-router-dom'
-import RouterView, { RouteConfig } from 'react-router-view'
-
-// 路由配置
+```js
 const routes: RouteConfig[] = [
-  { path: '/single', component: Single },
   {
-    path: `/multi`,
+    path: '/single',
+    component: Single
+  },
+  {
+    path: '/multi',
     component: Multi,
     childRoutes: [
       {
@@ -35,27 +32,27 @@ const routes: RouteConfig[] = [
   }
 ]
 
-function App(props) {
-  return (
-    <div>
-      <BrowserRouter>
-        // 一级路由需要在 router 组件中，透传 props，并且传入 routes
-        <RouterView {...props} routes={routes} />
-      </BrowserRouter>
-    </div>
-  )
-}
-
 function Multi(props) {
   return (
     <div>
-      // 二级路由开始，只需要透传 props
-      <RouterView {...props} />
+      <Link to='/multi/child1'>child1</Link>
+      <Link to='/multi/child2'>child2</Link>
+      // 二级路由 // 必须透传 props // props 中 routes，所以不需要单独传 routes
+      <ReactRouterView {...props} />
     </div>
   )
 }
 
-ReactDOM.render(<App />, document.getElementById('app'))
+function App() {
+  return (
+    <BrowserRouter>
+      <Link to='/single'>single</Link>
+      <Link to='/multi'>multi</Link>
+      // 一级路由 // 必须在 Router 中 // 并且传入 routes // 透传 props 看需求
+      <ReactRouterView {...props} routes={routes} />
+    </BrowserRouter>
+  )
+}
 ```
 
 ## RouteConfig 配置
@@ -66,35 +63,12 @@ ReactDOM.render(<App />, document.getElementById('app'))
 import { RouteProps } from 'react-router'
 
 export interface RouteConfig extends RouteProps {
+  // 路由访问 url
   path: string
+  // react 组件
   component: React.ComponentType<any>
+  // 子路由，需要在本组件引入 ReactRouterView，用来渲染 Route 组件
   childRoutes?: RouteConfig[]
-}
-```
-
-### RouteProps.path
-
-路由访问 url
-
-### RouteProps.component
-
-react 组件
-
-### RouteProps.childRoutes
-
-子路由
-
-## 问题
-
-`Swtich Route Link` 等路由组件必须要在 `Router` 组件中使用，只能以源码的方式引入，在项目中 babel 配置包含 `node_modules/react-router-view`，随着项目一起打包。
-
-```js
-// 打包后的部分代码
-// 直接使用 Swtich 会报错
-// You should not use <Switch> outside a <Router>
-function ReactRouterView(props) {
-  var routes = props.routes
-  return React.createElement(reactRouterDom.Switch)
 }
 ```
 
