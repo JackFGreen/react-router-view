@@ -13,6 +13,12 @@ npm i @jackgreen/react-router-view
 ```js
 const routes: RouteConfig[] = [
   {
+    path: '/',
+    component: Home,
+    // 精确匹配
+    exact: true
+  },
+  {
     path: '/single',
     component: Single
   },
@@ -29,6 +35,18 @@ const routes: RouteConfig[] = [
         component: Child2
       }
     ]
+  },
+  // 配置 404
+  {
+    path: '/404',
+    component: NotFound
+  },
+  // 其他没有匹配到的路由，都会重定向到 404
+  // 必须放在最后，原理是渲染 Redirect 组件
+  {
+    path: '*',
+    // 重定向到 404
+    redirect: '/404'
   }
 ]
 
