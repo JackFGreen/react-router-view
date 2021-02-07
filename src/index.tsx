@@ -26,17 +26,30 @@ export default function ReactRouterView(props: any): JSX.Element {
       {routes.map((route: RouteConfig) => {
         const { component, childRoutes, redirect, ...config } = route
 
-        const C =
-          typeof redirect === 'string' && redirect !== '' ? (
-            <Redirect key={route.path} {...config} to={redirect} />
-          ) : (
-            <Route
-              key={route.path}
-              {...config}
-              // tslint:disable-next-line
-              render={(props: any) => <route.component {...props} routes={route.childRoutes} />}
-            />
-          )
+        const isRedirect = typeof redirect === 'string'
+        const isComponent = typeof component !== 'undefined'
+
+        const redirectComponent = isRedirect ? (
+          <Redirect key={route.path} {...config} to={redirect as string} />
+        ) : null
+
+        if (isComponent && isRedirect) {
+          route.childRoutes = route.childRoutes?.concat({
+            ...config,
+            redirect
+          })
+        }
+
+        const routeComponent = isComponent ? (
+          <Route
+            key={route.path}
+            {...config}
+            // tslint:disable-next-line
+            render={(props: any) => <route.component {...props} routes={route.childRoutes} />}
+          />
+        ) : null
+
+        const C = isRedirect && !isComponent ? redirectComponent : routeComponent
 
         return C
       })}
