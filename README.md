@@ -24,6 +24,8 @@ const routes: RouteConfig[] = [
   },
   {
     path: '/multi',
+    // 默认跳转到子路由
+    redirect: '/multi/child1',
     component: Multi,
     childRoutes: [
       {
